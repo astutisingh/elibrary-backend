@@ -1,0 +1,50 @@
+server:
+  port: 7000
+  
+spring:
+  application:
+    name: Microservice-Gateway
+  cloud:
+    gateway:
+      default-filters:
+        - DedupeResponseHeader=Access-Control-Allow-Credentials Access-Control-Allow-Origin
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+              allowedOrigins: "*"
+              allowedMethods: "*"
+              allowedHeaders: "*"
+      routes:
+      - id: Book-Microservice
+        uri: lb://Book-Microservice
+        predicates:
+        - Path=/book/**
+      - id: Rental-Microservice
+        uri: lb://Rental-Microservice
+        predicates:
+        - Path=/rental/**
+      - id: Order-Microservice
+        uri: lb://Order-Microservice
+        predicates:
+        - Path=/order/**, /cart/**
+      - id: Security-Service
+        uri: lb://Security-Service
+        predicates:
+        - Path=/api/auth/**, /api/user-auth/**
+        
+management:
+  endpoints:
+    web:
+      exposure:
+        include: hystrix.stream
+        
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      default-zone: http://localhost:8761/eureka/
+      
+  instance:
+    hostname: localhost
+         
